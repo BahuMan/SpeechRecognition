@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<profile name="demo version">
+  <input>
+    <id>unique name</id>
+    <groupName>non-unique name</groupName>
+    <inputString>first activation</inputString>
+    <inputString>second activation</inputString>
+    <actionSequence>
+      <action>
+        <condition>
+          <and>
+            <or>
+              <equals>
+                <expression>
+                </expression>
+              </equals>
+              <confidence>
+                <min>10</min>
+                <max>100</max>
+              </confidence>
+              <spoken></spoken>
+            </or>
+          </and>
+        </condition>
+        <set var="name">value</set>
+        <response>running text, to be displayed to player</response>
+      </action>
+      <action>
+        ...
+      </action>
+    </actionSequence>
+  </input>
+  <input>
+    ...
+  </input>
+</profile>

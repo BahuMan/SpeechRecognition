@@ -44,9 +44,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConsoleApp.cs" />
+    <Compile Include="Actions\SRCompoundAction.cs" />
+    <Compile Include="Conditions\ANDCondition.cs" />
+    <Compile Include="Conditions\EqualsCondition.cs" />
+    <Compile Include="Conditions\FALSECondition.cs" />
+    <Compile Include="Conditions\ISRCondition.cs" />
+    <Compile Include="Conditions\ORCondition.cs" />
+    <Compile Include="Conditions\SpokenCondition.cs" />
+    <Compile Include="Conditions\TRUECondition.cs" />
+    <Compile Include="ParseSRProfile.cs" />
+    <Compile Include="ParseVAProfile.cs" />
+    <Compile Include="Expressions\ISRExpression.cs" />
+    <Compile Include="Expressions\TextExpression.cs" />
+    <Compile Include="Actions\ISRAction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Inputs\SRInput.cs" />
+    <Compile Include="SRProfile.cs" />
+    <Compile Include="SRStatus.cs" />
     <Compile Include="VAProfile.cs" />
+    <Compile Include="Actions\SRResponseAction.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

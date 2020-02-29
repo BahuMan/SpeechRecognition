@@ -17,7 +17,8 @@ namespace bvba.cryingpants.SpeechRecognition
             };
             //if I pass the filename as an URI instead of File.openText, I risk an XML exception about the encoding
             //this way, I force encoding to be UTF-8 and the XmlReader ignores the encoding tag of UTF-16 which is wrong anyway
-            using (XmlReader xr = XmlReader.Create(File.OpenText(filename), xs))
+            using (XmlReader xr = XmlReader.Create(filename, xs))
+            //using (XmlReader xr = XmlReader.Create(File.OpenText(filename), xs))
             {
                 ParseProfile(xr);
             }
@@ -31,15 +32,9 @@ namespace bvba.cryingpants.SpeechRecognition
                 if (xr.NodeType == XmlNodeType.XmlDeclaration) Console.WriteLine("xml, as expected");
             }
             catch (XmlException xmle)
+            when (xmle.Message.Contains("Unicode byte order mark"))
             {
-                Console.WriteLine("error on first element");
-                foreach (var i in xmle.Data.Keys)
-                {
-                    Console.Write(i.ToString());
-                    Console.Write(" = ");
-                    Console.WriteLine(xmle.Data[i].ToString());
-                }
-                throw; //re-throw exception; we can't really handle it anyway
+                throw new XmlException("the encoding specified in the XML document is different from the encoding actually used by the file. Simply removing the encoding in the first line of the xml fle might solve the problem");
             }
 
             //read start profile
@@ -92,12 +87,30 @@ namespace bvba.cryingpants.SpeechRecognition
             if (xr.NodeType != XmlNodeType.EndElement || xr.Name.ToLower() != "id") throw new XmlException("expected end of ID tag");
             return res;
         }
+
         private void ParseCommandList(XmlReader xr)
         {
-            //for now, just swallow the whole actioncommand list:
+
+            xr.Read();
+            while (xr.NodeType == XmlNodeType.Element && xr.Name.ToLower() == "command")
+            {
+                ParseCommand(xr);
+                xr.Read();
+            }
+        }
+
+        private void ParseCommand(XmlReader xr)
+        {
+            string id = ParseID(xr);
+            string commandString = ExpectTextElement(xr, "commandstring");
+            Console.Write("parsing command '");
+            Console.Write(commandString);
+            Console.WriteLine("'");
+
+            //for now, swallow everything inside command:
             while (xr.Read())
             {
-                if (xr.NodeType == XmlNodeType.EndElement && xr.Name.ToLower() == "commands") return;
+                if (xr.NodeType == XmlNodeType.EndElement && xr.Name.ToLower() == "command") return;
             }
         }
 
@@ -105,6 +118,21 @@ namespace bvba.cryingpants.SpeechRecognition
         {
             xr.Read();
             return xr.Value;
+        }
+
+        private string ExpectTextElement(XmlReader xr, string elemName)
+        {
+            xr.Read();
+            if (xr.NodeType != XmlNodeType.Element && xr.Name.ToLower() != elemName) throw new XmlException("expected tag <" + elemName + "> instead of " + xr.Name);
+
+            xr.Read();
+            if (xr.NodeType != XmlNodeType.Text) throw new XmlException("expected text inside " + elemName);
+            string res = xr.Value;
+
+            xr.Read();
+            if (xr.NodeType != XmlNodeType.EndElement && xr.Name.ToLower() != elemName) throw new XmlException("expected end tag </" + elemName + "> instead of " + xr.Name);
+
+            return res;
         }
     }
 }

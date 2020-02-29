@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<profile name="test version">
+  <input>
+    <id>helloworld</id>
+    <groupName>non-unique name</groupName>
+    <inputString>hello</inputString>
+    <inputString>hello world</inputString>
+    <actionSequence>
+      <action>
+        <condition>
+          <true/>
+        </condition>
+        <response>Hello world!</response>
+      </action>
+      <action>
+        <response>How are you?</response>
+      </action>
+    </actionSequence>
+  </input>
+  <input>
+    <id>nicetomeetyou</id>
+    <inputString>nice to meet you</inputString>
+    <actionSequence>
+      <action>
+        <condition>
+          <true/>
+        </condition>
+        <response>Nice to meet you, too! ;-)</response>
+      </action>
+    </actionSequence>
+  </input>
+</profile>
