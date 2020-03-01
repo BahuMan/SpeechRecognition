@@ -10,7 +10,6 @@ namespace bvba.cryingpants.SpeechRecognition.Actions
 {
     public class SRSetVariableAction : ISRAction
     {
-        private ISRCondition _condition;
         private string _variableName;
         private ISRExpression _expression;
 
@@ -22,13 +21,7 @@ namespace bvba.cryingpants.SpeechRecognition.Actions
 
         public void PerformAction(SRStatus status, string inputstring)
         {
-            if (_condition == null || _condition.HasBeenMet(status))
-                status.SetVariable(_variableName, _expression.Evaluate(status));
-        }
-
-        public void SetCondition(ISRCondition condition)
-        {
-            _condition = condition;
+            status.SetVariable(_variableName, _expression.Evaluate(status));
         }
     }
 }

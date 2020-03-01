@@ -9,37 +9,30 @@ namespace bvba.cryingpants.SpeechRecognition.Inputs
     {
         public string Name { get; set; }
         public string GroupName { get; set; }
-        private List<ISRAction> _actions = new List<ISRAction>();
+        private SRActionSequence _actions;
         public int ActionCount { get { return _actions.Count; } }
         private List<string> _inputStrings = new List<string>();
         private bool _active = true;
         public event InputActivationHandler InputActivated;
-
-        public SRInput()
-        {
-        }
 
         public void AddInputString(string inputstring)
         {
             _inputStrings.Add(inputstring);
         }
 
+        public void SetActionSequence(SRActionSequence actionSequence)
+        {
+            _actions = actionSequence;
+        }
+
         public void ProcessInputString(SRStatus status, string inputstring)
         {
-            foreach (var a in _actions)
-            {
-                a.PerformAction(status, inputstring);
-            }
+            _actions.PerformAction(status, inputstring);
         }
 
         public IReadOnlyCollection<string> GetAllInputStrings()
         {
             return _inputStrings;
-        }
-
-        public void AddAction(ISRAction action)
-        {
-            _actions.Add(action);
         }
 
         public bool isActive {

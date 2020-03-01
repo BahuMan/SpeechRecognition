@@ -103,7 +103,7 @@ namespace bvba.cryingpants.SpeechRecognition
                 else if (xr.NodeType == XmlNodeType.Element && elname == "inputstring")
                     input.AddInputString(FoundElement(xr, "inputstring"));
                 else if (xr.NodeType == XmlNodeType.Element && elname == "actionsequence")
-                    ReadActionSequence(xr, input);
+                    input.SetActionSequence(ReadActionSequence(xr));
             }
 
             if (input.Name == null) throw new XmlException("found an input without a name");
@@ -115,42 +115,41 @@ namespace bvba.cryingpants.SpeechRecognition
             return input;
         }
 
-        private static void ReadActionSequence(XmlReader xr, SRInput input)
+        private static SRActionSequence ReadActionSequence(XmlReader xr)
         {
-            
+            SRActionSequence actionSequence = new SRActionSequence();
+
             while (xr.Read())
             {
                 string elname = xr.Name.ToLower();
                 if (xr.NodeType == XmlNodeType.EndElement && elname == "actionsequence")
-                    return;
-                else if (xr.NodeType == XmlNodeType.Element && elname == "action")
-                    input.AddAction(ReadSingleAction(xr));
-                else
-                    throw new XmlException("unexpected element: " + xr.Name);
-            }
-        }
-
-        private static ISRAction ReadSingleAction(XmlReader xr)
-        {
-            SRCompoundAction action = new SRCompoundAction();
-
-            while (xr.Read())
-            {
-                string elname = xr.Name.ToLower();
-                if (xr.NodeType == XmlNodeType.EndElement && elname == "action")
                     break;
                 else if (xr.NodeType == XmlNodeType.Element && elname == "condition")
-                    action.SetCondition(ReadCondition(xr));
+                    actionSequence.AddAction(ReadCondition(xr));
                 else if (xr.NodeType == XmlNodeType.Element && elname == "response")
-                    action.AddAction(ReadResponse(xr));
+                    actionSequence.AddAction(ReadResponse(xr));
                 else if (xr.NodeType == XmlNodeType.Element && elname == "setvar")
-                    action.AddAction(new SRSetVariableAction(xr.GetAttribute("name"), ReadExpression(xr, "setvar")));
+                    actionSequence.AddAction(new SRSetVariableAction(xr.GetAttribute("name"), ReadExpression(xr, "setvar")));
                 else
-                    throw new XmlException("unknown action '" + xr.Name + "'");
+                    throw new XmlException("expected action but found: " + xr.Name);
             }
 
-            if (action.ActionCount < 1) throw new XmlException("expected <condition> or <response> inside actionsequence");
-            return action;
+            return actionSequence;
+        }
+
+        private static ISRAction ReadCondition(XmlReader xr)
+        {
+            ISRCondition condition = ReadConditionOperator(xr);
+
+            if (!xr.Read() || xr.NodeType != XmlNodeType.Element || xr.Name.ToLower() != "actionsequence")
+                throw new XmlException("condition should have 1 condition operator followed by actionsequence; found: " + xr.Name);
+
+            SRActionSequence action = ReadActionSequence(xr);
+
+            if (!xr.Read() || xr.NodeType != XmlNodeType.EndElement || xr.Name.ToLower() != "condition")
+                throw new XmlException("expected </condition>; found: " + xr.Name);
+
+            return new SRConditionAction(condition, action);
         }
 
         private static SRResponseAction ReadResponse(XmlReader xr)
@@ -182,7 +181,7 @@ namespace bvba.cryingpants.SpeechRecognition
         }
 
         //@TODO: will become a recursive method to read composite conditions
-        private static ISRCondition ReadCondition(XmlReader xr)
+        private static ISRCondition ReadConditionOperator(XmlReader xr)
         {
             ISRCondition result = null;
 
@@ -195,10 +194,6 @@ namespace bvba.cryingpants.SpeechRecognition
             }
             else
                 throw new XmlException("expected a condition tag <true/> or <false/> instead of " + elname);
-
-            xr.Read();
-            if (xr.NodeType != XmlNodeType.EndElement || xr.Name.ToLower() != "condition")
-                throw new XmlException("expected </condition>");
 
             return result;
         }

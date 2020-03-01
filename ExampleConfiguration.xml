@@ -6,28 +6,25 @@
     <inputString>first activation</inputString>
     <inputString>second activation</inputString>
     <actionSequence>
-      <action>
-        <condition>
-          <and>
-            <or>
-              <equals>
-                <expression>
-                </expression>
-              </equals>
-              <confidence>
-                <min>10</min>
-                <max>100</max>
-              </confidence>
-              <spoken></spoken>
-            </or>
-          </and>
-        </condition>
-        <set var="name">value</set>
-        <response>displayed to player with <dayofweek/> and <var name="test"/></response>
-      </action>
-      <action>
-        ...
-      </action>
+      <condition>
+        <and>
+          <or>
+            <equals>
+              <expression>
+              </expression>
+            </equals>
+            <confidence>
+              <min>10</min>
+              <max>100</max>
+            </confidence>
+            <spoken></spoken>
+          </or>
+        </and>
+          <set var="name">value</set>
+          <response>this response is conditionally shown</response>
+      </condition>
+      <response>this response is always shown</response>
+      <response>displayed to player with <dayofweek/> and <var name="test"/></response>
     </actionSequence>
   </input>
   <input>

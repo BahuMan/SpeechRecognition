@@ -6,53 +6,49 @@
     <inputString>hello</inputString>
     <inputString>hello world</inputString>
     <actionSequence>
-      <action>
-        <condition>
-          <true/>
-        </condition>
-        <response>Hello world!</response>
-      </action>
-      <action>
-        <response>How are you?</response>
-      </action>
+      <condition>
+        <true/>
+          <actionSequence>
+            <response>Hello world!</response>
+          </actionSequence>
+      </condition>
+      <response>How are you?</response>
+      <condition>
+        <false/>
+        <actionSequence>
+          <response>I'm really terrible. You should never see this</response>
+        </actionSequence>
+      </condition>
     </actionSequence>
   </input>
   <input>
     <id>today</id>
     <inputString>today</inputString>
     <actionSequence>
-      <action>
-        <response>today is <dayofweek/></response>
-      </action>
+      <response>today is <dayofweek/></response>
     </actionSequence>
   </input>
   <input>
     <id>one</id>
     <inputstring>one</inputstring>
     <actionsequence>
-      <action>
-        <setvar name="test">1</setvar>
-        <response>variable set to one</response>
-      </action>
+      <setvar name="test">1</setvar>
+      <response>variable set to one</response>
     </actionsequence>
   </input>
   <input>
     <id>two</id>
     <inputstring>two</inputstring>
     <actionsequence>
-      <action>
-        <setvar name="test">2</setvar>
-        <response>variable set to two</response>
-      </action>
+      <setvar name="test">2</setvar>
+      <response>variable set to two</response>
     </actionsequence>
   </input>
   <input>
     <id>test</id>
     <inputstring>test</inputstring>
     <actionsequence>
-      <action>
-        <response>variable test is <var name="test"/></response>
-      </action>
+      <response>variable test is <var name="test"/></response>
     </actionsequence>
   </input>
 </profile>
