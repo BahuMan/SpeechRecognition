@@ -20,8 +20,10 @@
             <spoken></spoken>
           </or>
         </and>
+        <actionSequence>
           <set var="name">value</set>
           <response>this response is conditionally shown</response>
+        </actionSequence>
       </condition>
       <response>this response is always shown</response>
       <response>displayed to player with <dayofweek/> and <var name="test"/></response>
