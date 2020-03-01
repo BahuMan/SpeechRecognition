@@ -4,6 +4,7 @@ using System.Speech.Recognition;
 using bvba.cryingpants.SpeechRecognition.Actions;
 using bvba.cryingpants.SpeechRecognition.Conditions;
 using bvba.cryingpants.SpeechRecognition.Inputs;
+using bvba.cryingpants.SpeechRecognition.Expressions;
 
 namespace bvba.cryingpants.SpeechRecognition
 {
@@ -11,7 +12,7 @@ namespace bvba.cryingpants.SpeechRecognition
     {
         public static void Main(string[] args)
         {
-            SRProfile profile = ParseXML("D:\\Projects\\Unity3D\\SpeechRecognition\\TestConfiguration.xml");
+            SRProfile profile = ParseXML("F:\\Projects\\VisualStudio\\SpeechRecognition\\TestConfiguration.xml");
             Console.Write("profile ");
             Console.Write(profile.Name);
             Console.WriteLine(" read");
@@ -25,6 +26,10 @@ namespace bvba.cryingpants.SpeechRecognition
 
                 status.SetSpeechRecognitionEngine(sre);
                 status.AddProfile(profile);
+
+                sre.SetInputToDefaultAudioDevice();
+                sre.RecognizeAsync(RecognizeMode.Multiple);
+
                 Console.WriteLine("Ready...");
 
                 Console.Write(">");
@@ -115,11 +120,13 @@ namespace bvba.cryingpants.SpeechRecognition
             
             while (xr.Read())
             {
-                string elname = xr.Name;
-                if (xr.NodeType == XmlNodeType.EndElement && elname == "actionSequence")
+                string elname = xr.Name.ToLower();
+                if (xr.NodeType == XmlNodeType.EndElement && elname == "actionsequence")
                     return;
                 else if (xr.NodeType == XmlNodeType.Element && elname == "action")
                     input.AddAction(ReadSingleAction(xr));
+                else
+                    throw new XmlException("unexpected element: " + xr.Name);
             }
         }
 
@@ -135,13 +142,43 @@ namespace bvba.cryingpants.SpeechRecognition
                 else if (xr.NodeType == XmlNodeType.Element && elname == "condition")
                     action.SetCondition(ReadCondition(xr));
                 else if (xr.NodeType == XmlNodeType.Element && elname == "response")
-                     action.AddAction(new SRResponseAction(FoundElement(xr, "response")));
+                    action.AddAction(ReadResponse(xr));
+                else if (xr.NodeType == XmlNodeType.Element && elname == "setvar")
+                    action.AddAction(new SRSetVariableAction(xr.GetAttribute("name"), ReadExpression(xr, "setvar")));
                 else
                     throw new XmlException("unknown action '" + xr.Name + "'");
             }
 
             if (action.ActionCount < 1) throw new XmlException("expected <condition> or <response> inside actionsequence");
             return action;
+        }
+
+        private static SRResponseAction ReadResponse(XmlReader xr)
+        {
+            return new SRResponseAction(ReadExpression(xr, "response"));
+        }
+
+        private static ISRExpression ReadExpression(XmlReader xr, string endTag)
+        {
+            CompoundExpression ce = new CompoundExpression();
+            while (xr.Read())
+            {
+                string elname = xr.Name.ToLower();
+                if (xr.IsStartElement() && elname == "dayofweek")
+                    ce.AddExpression(new DayOfWeekExpression());
+                else if (xr.IsStartElement() && elname == "var")
+                    ce.AddExpression(new VariableExpression(xr.GetAttribute("name")));
+                else if (xr.NodeType == XmlNodeType.Text)
+                    ce.AddExpression(new TextExpression(xr.Value));
+                else if (xr.NodeType == XmlNodeType.EndElement && elname == endTag)
+                    break;
+                else
+                    throw new XmlException("expected text, <dayofweek/>, <var/> or </" + endTag + "> instead of " + xr.Name);
+            }
+            if (ce.Count == 0) throw new XmlException("no expression found");
+            if (ce.Count == 1) return ce[0];
+
+            return ce;
         }
 
         //@TODO: will become a recursive method to read composite conditions

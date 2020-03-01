@@ -18,15 +18,41 @@
     </actionSequence>
   </input>
   <input>
-    <id>nicetomeetyou</id>
-    <inputString>nice to meet you</inputString>
+    <id>today</id>
+    <inputString>today</inputString>
     <actionSequence>
       <action>
-        <condition>
-          <true/>
-        </condition>
-        <response>Nice to meet you, too! ;-)</response>
+        <response>today is <dayofweek/></response>
       </action>
     </actionSequence>
+  </input>
+  <input>
+    <id>one</id>
+    <inputstring>one</inputstring>
+    <actionsequence>
+      <action>
+        <setvar name="test">1</setvar>
+        <response>variable set to one</response>
+      </action>
+    </actionsequence>
+  </input>
+  <input>
+    <id>two</id>
+    <inputstring>two</inputstring>
+    <actionsequence>
+      <action>
+        <setvar name="test">2</setvar>
+        <response>variable set to two</response>
+      </action>
+    </actionsequence>
+  </input>
+  <input>
+    <id>test</id>
+    <inputstring>test</inputstring>
+    <actionsequence>
+      <action>
+        <response>variable test is <var name="test"/></response>
+      </action>
+    </actionsequence>
   </input>
 </profile>

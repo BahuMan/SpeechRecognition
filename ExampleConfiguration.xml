@@ -23,7 +23,7 @@
           </and>
         </condition>
         <set var="name">value</set>
-        <response>running text, to be displayed to player</response>
+        <response>displayed to player with <dayofweek/> and <var name="test"/></response>
       </action>
       <action>
         ...

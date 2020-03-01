@@ -58,5 +58,20 @@ namespace bvba.cryingpants.SpeechRecognition
                 _activeInputsByInputString[typed].ProcessInputString(this, typed);
             }
         }
+
+        public bool IsVariableDefined(string variableName)
+        {
+            return _variableValuesByName.ContainsKey(variableName);
+        }
+
+        public string GetVariable(string variableName)
+        {
+            return _variableValuesByName[variableName];
+        }
+
+        public void SetVariable(string variable, string value)
+        {
+            _variableValuesByName[variable] = value;
+        }
     }
 }

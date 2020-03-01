@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actions\SRCompoundAction.cs" />
+    <Compile Include="Actions\SRSetVariableAction.cs" />
     <Compile Include="Conditions\ANDCondition.cs" />
     <Compile Include="Conditions\EqualsCondition.cs" />
     <Compile Include="Conditions\FALSECondition.cs" />
@@ -52,6 +53,9 @@
     <Compile Include="Conditions\ORCondition.cs" />
     <Compile Include="Conditions\SpokenCondition.cs" />
     <Compile Include="Conditions\TRUECondition.cs" />
+    <Compile Include="Expressions\CompoundExpression.cs" />
+    <Compile Include="Expressions\DayOfWeekExpression.cs" />
+    <Compile Include="Expressions\VariableExpression.cs" />
     <Compile Include="ParseSRProfile.cs" />
     <Compile Include="ParseVAProfile.cs" />
     <Compile Include="Expressions\ISRExpression.cs" />
