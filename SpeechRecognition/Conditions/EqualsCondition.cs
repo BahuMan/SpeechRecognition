@@ -14,7 +14,7 @@ namespace bvba.cryingpants.SpeechRecognition.Conditions
 
         public bool HasBeenMet(SRStatus status)
         {
-            return (_expr1.Evaluate(status) == _expr2.Evaluate(status));
+            return _expr1.Evaluate(status).ToLower() == _expr2.Evaluate(status).ToLower();
         }
     }
 }

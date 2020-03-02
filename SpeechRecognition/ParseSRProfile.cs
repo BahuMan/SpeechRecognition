@@ -38,6 +38,7 @@ namespace bvba.cryingpants.SpeechRecognition
                 {
                     status.ProcessInput(typed);
 
+                    Console.WriteLine();
                     Console.Write(">");
                     typed = Console.ReadLine().ToLower();
                 }
@@ -49,6 +50,8 @@ namespace bvba.cryingpants.SpeechRecognition
         {
             Console.WriteLine("Recognized text: " + e.Result.Text);
             status.ProcessInput(e.Result.Text);
+            Console.WriteLine();
+            Console.Write(">");
         }
 
         public static SRProfile ParseXML(string filename)
@@ -103,7 +106,7 @@ namespace bvba.cryingpants.SpeechRecognition
                 else if (xr.NodeType == XmlNodeType.Element && elname == "inputstring")
                     input.AddInputString(FoundElement(xr, "inputstring"));
                 else if (xr.NodeType == XmlNodeType.Element && elname == "actionsequence")
-                    input.SetActionSequence(ReadActionSequence(xr));
+                    input.SetActionSequence(ReadActionSequence(xr, "actionsequence"));
             }
 
             if (input.Name == null) throw new XmlException("found an input without a name");
@@ -115,17 +118,17 @@ namespace bvba.cryingpants.SpeechRecognition
             return input;
         }
 
-        private static SRActionSequence ReadActionSequence(XmlReader xr)
+        private static SRActionSequence ReadActionSequence(XmlReader xr, string endTag)
         {
             SRActionSequence actionSequence = new SRActionSequence();
 
             while (xr.Read())
             {
                 string elname = xr.Name.ToLower();
-                if (xr.NodeType == XmlNodeType.EndElement && elname == "actionsequence")
+                if (xr.NodeType == XmlNodeType.EndElement && elname == endTag)
                     break;
-                else if (xr.NodeType == XmlNodeType.Element && elname == "condition")
-                    actionSequence.AddAction(ReadCondition(xr));
+                else if (xr.NodeType == XmlNodeType.Element && elname == "if")
+                    actionSequence.AddAction(ReadIfAction(xr));
                 else if (xr.NodeType == XmlNodeType.Element && elname == "response")
                     actionSequence.AddAction(ReadResponse(xr));
                 else if (xr.NodeType == XmlNodeType.Element && elname == "setvar")
@@ -137,19 +140,28 @@ namespace bvba.cryingpants.SpeechRecognition
             return actionSequence;
         }
 
-        private static ISRAction ReadCondition(XmlReader xr)
+        private static ISRAction ReadIfAction(XmlReader xr)
         {
             ISRCondition condition = ReadConditionOperator(xr);
 
-            if (!xr.Read() || xr.NodeType != XmlNodeType.Element || xr.Name.ToLower() != "actionsequence")
+            if (!xr.Read() || xr.NodeType != XmlNodeType.Element || xr.Name.ToLower() != "then")
                 throw new XmlException("condition should have 1 condition operator followed by actionsequence; found: " + xr.Name);
 
-            SRActionSequence action = ReadActionSequence(xr);
+            SRActionSequence action = ReadActionSequence(xr, "then");
 
-            if (!xr.Read() || xr.NodeType != XmlNodeType.EndElement || xr.Name.ToLower() != "condition")
+            SRIfAction result = new SRIfAction(condition, action);
+
+            xr.Read();
+            if (xr.NodeType == XmlNodeType.Element && xr.Name.ToLower() == "else")
+            {
+                result.SetElseAction(ReadActionSequence(xr, "else"));
+                if (!xr.Read() || xr.NodeType != XmlNodeType.EndElement || xr.Name.ToLower() != "if")
+                    throw new XmlException("expected </condition>; found: " + xr.Name);
+            }
+            else if (xr.NodeType != XmlNodeType.EndElement || xr.Name.ToLower() != "if")
                 throw new XmlException("expected </condition>; found: " + xr.Name);
 
-            return new SRConditionAction(condition, action);
+            return result;
         }
 
         private static SRResponseAction ReadResponse(XmlReader xr)
@@ -190,12 +202,32 @@ namespace bvba.cryingpants.SpeechRecognition
             if (xr.NodeType == XmlNodeType.Element) {
                 if (elname == "true") result = new TRUECondition();
                 else if (elname == "false") result = new FALSECondition();
+                else if (elname == "equals")  result = ReadEqualsCondition(xr);
                 else throw new XmlException("unknown condition '" + elname + "'");
             }
             else
                 throw new XmlException("expected a condition tag <true/> or <false/> instead of " + elname);
 
             return result;
+        }
+
+        private static EqualsCondition ReadEqualsCondition(XmlReader xr)
+        {
+            xr.Read();
+            if (xr.NodeType != XmlNodeType.Element || xr.Name.ToLower() != "operand1")
+                throw new XmlException("expected <operand1> but read " + xr.ToString());
+            ISRExpression op1 = ReadExpression(xr, "operand1");
+
+            xr.Read();
+            if (xr.NodeType != XmlNodeType.Element || xr.Name.ToLower() != "operand2")
+                throw new XmlException("expected <operand2> but read " + xr.ToString());
+            ISRExpression op2 = ReadExpression(xr, "operand2");
+
+            xr.Read();
+            if (xr.NodeType != XmlNodeType.EndElement || xr.Name.ToLower() != "equals")
+                throw new XmlException("expected <equals> but read " + xr.ToString());
+
+            return new EqualsCondition(op1, op2);
         }
 
         private static string FoundElement(XmlReader xr, string elname)

@@ -6,19 +6,19 @@
     <inputString>hello</inputString>
     <inputString>hello world</inputString>
     <actionSequence>
-      <condition>
+      <if>
         <true/>
-          <actionSequence>
+          <then>
             <response>Hello world!</response>
-          </actionSequence>
-      </condition>
+          </then>
+      </if>
       <response>How are you?</response>
-      <condition>
+      <if>
         <false/>
-        <actionSequence>
+        <then>
           <response>I'm really terrible. You should never see this</response>
-        </actionSequence>
-      </condition>
+        </then>
+      </if>
     </actionSequence>
   </input>
   <input>
@@ -49,6 +49,25 @@
     <inputstring>test</inputstring>
     <actionsequence>
       <response>variable test is <var name="test"/></response>
+    </actionsequence>
+  </input>
+  <input>
+    <id>equals</id>
+    <inputstring>equals</inputstring>
+    <actionsequence>
+      <response>let's see...</response>
+      <if>
+        <equals>
+          <operand1><var name="test"/></operand1>
+          <operand2>1</operand2>
+        </equals>
+        <then>
+          <response>yup, it's one!</response>
+        </then>
+        <else>
+          <response>nope, that's not one</response>
+        </else>
+      </if>
     </actionsequence>
   </input>
 </profile>
