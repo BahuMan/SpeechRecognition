@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Xml;
 using bvba.cryingpants.SpeechRecognition.Conditions;
 
 namespace bvba.cryingpants.SpeechRecognition.Actions
@@ -26,5 +27,32 @@ namespace bvba.cryingpants.SpeechRecognition.Actions
         {
             _elseAction = elseAction;
         }
+
+        public static ISRAction ParseXML(XmlReader xr)
+        {
+            ISRCondition condition = SRConditions.ParseXML(xr, null);
+            if (condition is null)
+                throw new XmlException("if action should start with a condition");
+
+            if (!xr.Read() || xr.NodeType != XmlNodeType.Element || xr.Name.ToLower() != "then")
+                throw new XmlException("condition should have 1 condition operator followed by actionsequence; found: " + xr.Name);
+
+            SRActionSequence action = SRActionSequence.ParseXML(xr, "then");
+
+            SRIfAction result = new SRIfAction(condition, action);
+
+            xr.Read();
+            if (xr.NodeType == XmlNodeType.Element && xr.Name.ToLower() == "else")
+            {
+                result.SetElseAction(SRActionSequence.ParseXML(xr, "else"));
+                if (!xr.Read() || xr.NodeType != XmlNodeType.EndElement || xr.Name.ToLower() != "if")
+                    throw new XmlException("expected </condition>; found: " + xr.Name);
+            }
+            else if (xr.NodeType != XmlNodeType.EndElement || xr.Name.ToLower() != "if")
+                throw new XmlException("expected </condition>; found: " + xr.Name);
+
+            return result;
+        }
+
     }
 }

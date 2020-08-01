@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Xml;
 
 namespace bvba.cryingpants.SpeechRecognition.Conditions
 {
@@ -29,6 +30,18 @@ namespace bvba.cryingpants.SpeechRecognition.Conditions
                 if (!c.HasBeenMet(status)) return false;
             }
             return true;
+        }
+
+        public static ANDCondition ParseXML(XmlReader xr)
+        {
+            ANDCondition result = new ANDCondition();
+            ISRCondition cond = SRConditions.ParseXML(xr, "and");
+            while (cond != null)
+            {
+                result.Add(cond);
+                cond = SRConditions.ParseXML(xr, "and");
+            }
+            return result;
         }
     }
 }

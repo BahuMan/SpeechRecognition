@@ -6,12 +6,12 @@
     <inputString>first activation</inputString>
     <inputString>second activation</inputString>
     <actionSequence>
-      <condition>
+      <if>
         <and>
           <or>
             <equals>
-              <expression>
-              </expression>
+              <operand1></operand1>
+              <operand2></operand2>
             </equals>
             <confidence>
               <min>10</min>
@@ -20,11 +20,14 @@
             <spoken></spoken>
           </or>
         </and>
-        <actionSequence>
+        <then>
           <set var="name">value</set>
           <response>this response is conditionally shown</response>
-        </actionSequence>
-      </condition>
+        </then>
+        <else>
+          <response>this is only executed when the condition was false</response>
+        </else>
+      </if>
       <response>this response is always shown</response>
       <response>displayed to player with <dayofweek/> and <var name="test"/></response>
     </actionSequence>

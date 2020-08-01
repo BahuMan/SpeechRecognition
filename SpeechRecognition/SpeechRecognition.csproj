@@ -53,6 +53,7 @@
     <Compile Include="Conditions\ISRCondition.cs" />
     <Compile Include="Conditions\ORCondition.cs" />
     <Compile Include="Conditions\SpokenCondition.cs" />
+    <Compile Include="Conditions\SRConditions.cs" />
     <Compile Include="Conditions\TRUECondition.cs" />
     <Compile Include="Expressions\CompoundExpression.cs" />
     <Compile Include="Expressions\DayOfWeekExpression.cs" />

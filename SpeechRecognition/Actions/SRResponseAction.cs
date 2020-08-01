@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Xml;
 using bvba.cryingpants.SpeechRecognition.Conditions;
 using bvba.cryingpants.SpeechRecognition.Expressions;
 
@@ -17,7 +18,12 @@ namespace bvba.cryingpants.SpeechRecognition.Actions
         {
             //@TODO: decide whether to use console or speech synthesis
 
-            Console.WriteLine("Response: " + _expression.Evaluate(status));
+            Console.WriteLine(_expression.Evaluate(status));
+        }
+
+        public static SRResponseAction ParseXML(XmlReader xr)
+        {
+            return new SRResponseAction(CompoundExpression.ParseXML(xr, "response"));
         }
     }
 }
