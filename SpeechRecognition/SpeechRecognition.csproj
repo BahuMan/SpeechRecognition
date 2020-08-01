@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actions\SRActionSequence.cs" />
+    <Compile Include="Actions\SREnableInputByTagAction.cs" />
     <Compile Include="Actions\SRIfAction.cs" />
     <Compile Include="Actions\SRSetVariableAction.cs" />
     <Compile Include="Conditions\ANDCondition.cs" />

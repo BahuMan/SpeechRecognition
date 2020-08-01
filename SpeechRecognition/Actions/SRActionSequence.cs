@@ -36,6 +36,8 @@ namespace bvba.cryingpants.SpeechRecognition.Actions
                     actionSequence.AddAction(SRIfAction.ParseXML(xr));
                 else if (xr.NodeType == XmlNodeType.Element && elname == "response")
                     actionSequence.AddAction(SRResponseAction.ParseXML(xr));
+                else if (xr.NodeType == XmlNodeType.Element && elname == "enableinputbytag")
+                    actionSequence.AddAction(SREnableInputByTagAction.ParseXML(xr));
                 else if (xr.NodeType == XmlNodeType.Element && elname == "setvar")
                     actionSequence.AddAction(new SRSetVariableAction(xr.GetAttribute("name"), CompoundExpression.ParseXML(xr, "setvar")));
                 else

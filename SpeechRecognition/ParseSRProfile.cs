@@ -1,10 +1,7 @@
-﻿using System;
-using System.Xml;
+﻿using bvba.cryingpants.SpeechRecognition.Inputs;
+using System;
 using System.Speech.Recognition;
-using bvba.cryingpants.SpeechRecognition.Actions;
-using bvba.cryingpants.SpeechRecognition.Conditions;
-using bvba.cryingpants.SpeechRecognition.Inputs;
-using bvba.cryingpants.SpeechRecognition.Expressions;
+using System.Xml;
 
 namespace bvba.cryingpants.SpeechRecognition
 {
@@ -53,7 +50,8 @@ namespace bvba.cryingpants.SpeechRecognition
 
         static void sre_speechRecognized(object sender, SpeechRecognizedEventArgs e, SRStatus status)
         {
-            Console.WriteLine("     Recognized with " + e.Result.Confidence + "% confidence: " + e.Result.Text);
+            Console.WriteLine("     Recognized with " + e.Result.Confidence + "% confidence: " + e.Result.Text + " for grammar " + e.Result.Grammar);
+            if (e.Result.Text.ToLower() == "quit" || e.Result.Text.ToLower() == "exit") System.Environment.Exit(0);
             status.ProcessInput(e.Result.Text);
             Console.WriteLine();
             Console.Write(">");
@@ -88,7 +86,7 @@ namespace bvba.cryingpants.SpeechRecognition
                     return profile;
                 }
                 else if (xr.NodeType == XmlNodeType.Element && elname == "input")
-                    profile.AddInput(ReadInput(xr));
+                    profile.AddInput(SRInput.ParseXML(xr));
                 else
                 {
 
@@ -99,36 +97,7 @@ namespace bvba.cryingpants.SpeechRecognition
             return profile;
         }
 
-        private static Inputs.SRInput ReadInput(XmlReader xr)
-        {
-
-            Inputs.SRInput input = new Inputs.SRInput();
-
-            while (xr.Read())
-            {
-                string elname = xr.Name.ToLower();
-                if (xr.NodeType == XmlNodeType.EndElement && elname == "input")
-                    break;
-                else if (xr.NodeType == XmlNodeType.Element && elname == "id")
-                    input.Name = FoundElement(xr, "id");
-                else if (xr.NodeType == XmlNodeType.Element && elname == "groupname")
-                    input.GroupName = FoundElement(xr, "groupname");
-                else if (xr.NodeType == XmlNodeType.Element && elname == "inputstring")
-                    input.AddInputString(FoundElement(xr, "inputstring"));
-                else if (xr.NodeType == XmlNodeType.Element && elname == "actionsequence")
-                    input.SetActionSequence(SRActionSequence.ParseXML(xr, "actionsequence"));
-            }
-
-            if (input.Name == null) throw new XmlException("found an input without a name");
-
-            //@TODO: some autoexec inputs might have no inputstrings, so this check may have to be refined
-            if (input.GetAllInputStrings().Count < 1) throw new XmlException("input '" + input.Name + "' has no inputstrings");
-
-            if (input.ActionCount < 1) throw new XmlException("input '" + input.Name + "' has no actions");
-            return input;
-        }
-
-        private static string FoundElement(XmlReader xr, string elname)
+        public static string FoundElement(XmlReader xr, string elname)
         {
             xr.Read();
             if (xr.NodeType != XmlNodeType.Text) throw new XmlException("expected text after " + elname + " tag");

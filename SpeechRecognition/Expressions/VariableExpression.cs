@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace bvba.cryingpants.SpeechRecognition.Expressions
+﻿namespace bvba.cryingpants.SpeechRecognition.Expressions
 {
     public class VariableExpression : ISRExpression
     {

@@ -2,7 +2,7 @@
 <profile name="demo version">
   <input>
     <id>unique name</id>
-    <groupName>non-unique name</groupName>
+    <tags>comma,semicolon;or whitespace separated tags</tags>
     <inputString>first activation</inputString>
     <inputString>second activation</inputString>
     <actionSequence>
@@ -30,6 +30,8 @@
       </if>
       <response>this response is always shown</response>
       <response>displayed to player with <dayofweek/> and <var name="test"/></response>
+      <enableinputbytag enable="false">inputname as expression</enableinputbytag>
+      ...
     </actionSequence>
   </input>
   <input>

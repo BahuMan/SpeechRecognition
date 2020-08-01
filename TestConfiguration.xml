@@ -2,7 +2,7 @@
 <profile name="test version">
   <input>
     <id>helloworld</id>
-    <groupName>non-unique name</groupName>
+    <tags>hi</tags>
     <inputString>hello</inputString>
     <inputString>hello world</inputString>
     <actionSequence>
@@ -68,6 +68,24 @@
           <response>nope, that's not one</response>
         </else>
       </if>
+    </actionsequence>
+  </input>
+  <input>
+    <id>nohello</id>
+    <inputstring>no hello</inputstring>
+    <inputstring>disable hello</inputstring>
+    <actionsequence>
+      <enableinputbytag enable="false">hi</enableinputbytag>
+      <response>no hello, then</response>
+    </actionsequence>
+  </input>
+  <input>
+    <id>yeshello</id>
+    <inputstring>yes hello</inputstring>
+    <inputstring>enable hello</inputstring>
+    <actionsequence>
+      <enableinputbytag enable="true">hi</enableinputbytag>
+      <response>oh, we're being nice again?</response>
     </actionsequence>
   </input>
 </profile>
