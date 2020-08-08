@@ -30,7 +30,7 @@ namespace bvba.cryingpants.SpeechRecognition
 
             foreach (var i in pr.GetAllInputs())
             {
-                if (i.isActive)
+                if (i.IsActive)
                 {
 
                     foreach (var tag in i.Tags)
@@ -44,7 +44,7 @@ namespace bvba.cryingpants.SpeechRecognition
                     {
                         _activeInputsByInputGrammar.Add(instring, i);
 
-                        Grammar g = instring.BuildSpeechGrammar();
+                        Grammar g = new Grammar(instring.ToSpeechGrammar());
                         _grammarByInputGrammar[instring] = g;
                         _sre.LoadGrammar(g);
                     }
@@ -62,8 +62,8 @@ namespace bvba.cryingpants.SpeechRecognition
             }
             foreach (var input in _inputsByTag[tagname])
             {
-                if (input.isActive != enabled) {
-                    input.isActive = enabled;
+                if (input.IsActive != enabled) {
+                    input.IsActive = enabled;
 
                     foreach (var igrammar in input.GetAllInputGrammars())
                     {

@@ -80,7 +80,7 @@ namespace bvba.cryingpants.SpeechRecognition.Inputs
             return new Grammar(gb);
         }
 
-        public bool isActive {
+        public bool IsActive {
             set
             {
                 if (value != _active)

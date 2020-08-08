@@ -59,7 +59,9 @@
     <Compile Include="Expressions\CompoundExpression.cs" />
     <Compile Include="Expressions\DayOfWeekExpression.cs" />
     <Compile Include="Expressions\VariableExpression.cs" />
+    <Compile Include="InputGrammar\SRIMatch.cs" />
     <Compile Include="InputGrammar\SRInputGrammar.cs" />
+    <Compile Include="InputGrammar\SRTextMatcher.cs" />
     <Compile Include="ParseSRProfile.cs" />
     <Compile Include="ParseVAProfile.cs" />
     <Compile Include="Expressions\ISRExpression.cs" />

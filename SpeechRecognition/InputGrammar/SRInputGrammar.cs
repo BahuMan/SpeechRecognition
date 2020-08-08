@@ -2,6 +2,7 @@
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Speech.Recognition;
+using System.Collections.Generic;
 
 namespace bvba.cryingpants.SpeechRecognition.InputGrammar
 {
@@ -13,23 +14,41 @@ namespace bvba.cryingpants.SpeechRecognition.InputGrammar
     public class SRInputGrammar
     {
 
-        private string literal = null;
+        private List<ISRMatch> matchSequence = new List<ISRMatch>();
 
         public static SRInputGrammar ParseXML(XmlReader xr, string endTag)
         {
             SRInputGrammar result = new SRInputGrammar();
-            result.literal = ParseSRProfile.FoundElement(xr, "inputstring").ToLower();
+            while (xr.Read())
+            {
+                string elname = xr.Name.ToLower();
+                if (xr.NodeType == XmlNodeType.EndElement && elname == endTag)
+                    break;
+                else if (xr.NodeType == XmlNodeType.Text)
+                    result.matchSequence.Add(new SRTextMatcher(xr.Value.ToLower()));
+                else
+                    throw new XmlException("unknown element inside InputString: " + xr.ToString());
+            }
             return result;
         }
 
         public bool Matches(string teststring)
         {
-            return literal.Equals(teststring.ToLower());
+            foreach (var m in matchSequence)
+            {
+                if (!m.Matches(teststring)) return false;
+            }
+            return true;
         }
 
-        public Grammar BuildSpeechGrammar()
+        public GrammarBuilder ToSpeechGrammar()
         {
-            return new Grammar(new GrammarBuilder(literal));
+            GrammarBuilder gb = new GrammarBuilder();
+            foreach (var m in matchSequence)
+            {
+                gb.Append(m.ToSpeechGrammar());
+            }
+            return gb;
         }
     }
 }
