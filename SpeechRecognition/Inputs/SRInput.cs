@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Speech.Recognition;
 using System.Xml;
 using bvba.cryingpants.SpeechRecognition.Actions;
+using bvba.cryingpants.SpeechRecognition.InputGrammar;
 
 namespace bvba.cryingpants.SpeechRecognition.Inputs
 {
@@ -12,7 +14,7 @@ namespace bvba.cryingpants.SpeechRecognition.Inputs
         public string[] Tags { get; private set; }
         private SRActionSequence _actions;
         public int ActionCount { get { return _actions.Count; } }
-        private List<string> _inputStrings = new List<string>();
+        private List<SRInputGrammar> _inputStrings = new List<SRInputGrammar>();
         private bool _active = true;
         public event InputActivationHandler InputActivated;
 
@@ -30,16 +32,16 @@ namespace bvba.cryingpants.SpeechRecognition.Inputs
                     input.Name = ParseSRProfile.FoundElement(xr, "id");
                 else if (xr.NodeType == XmlNodeType.Element && elname == "tags")
                     input.SetTags(ParseSRProfile.FoundElement(xr, "tags"));
-                else if (xr.NodeType == XmlNodeType.Element && elname == "inputstring")
-                    input.AddInputString(ParseSRProfile.FoundElement(xr, "inputstring"));
                 else if (xr.NodeType == XmlNodeType.Element && elname == "actionsequence")
                     input.SetActionSequence(SRActionSequence.ParseXML(xr, "actionsequence"));
+                else if (xr.NodeType == XmlNodeType.Element && elname == "inputstring")
+                    input.AddInputString(SRInputGrammar.ParseXML(xr, "inputstring"));
             }
 
             if (input.Name == null) throw new XmlException("found an input without a name");
 
             //@TODO: some autoexec inputs might have no inputstrings, so this check may have to be refined
-            if (input.GetAllInputStrings().Count < 1) throw new XmlException("input '" + input.Name + "' has no inputstrings");
+            if (input.GetAllInputGrammars().Count < 1) throw new XmlException("input '" + input.Name + "' has no inputstrings");
 
             if (input.ActionCount < 1) throw new XmlException("input '" + input.Name + "' has no actions");
             return input;
@@ -50,7 +52,7 @@ namespace bvba.cryingpants.SpeechRecognition.Inputs
             this.Tags = tags.Split(",;: \t".ToCharArray(), System.StringSplitOptions.RemoveEmptyEntries);
         }
 
-        public void AddInputString(string inputstring)
+        public void AddInputString(SRInputGrammar inputstring)
         {
             _inputStrings.Add(inputstring);
         }
@@ -65,9 +67,17 @@ namespace bvba.cryingpants.SpeechRecognition.Inputs
             _actions.PerformAction(status, inputstring);
         }
 
-        public IReadOnlyCollection<string> GetAllInputStrings()
+        public IReadOnlyCollection<SRInputGrammar> GetAllInputGrammars()
         {
             return _inputStrings;
+        }
+
+        public static Grammar ConvertInputStringToGrammar(string inputstring)
+        {
+            GrammarBuilder gb = new GrammarBuilder(inputstring);
+            //@TODO: inputstring should be able to include synonyms, values for variables (like "use X on Y");
+            //inputstring.Split("[|]".ToCharArray(), System.StringSplitOptions.RemoveEmptyEntries)
+            return new Grammar(gb);
         }
 
         public bool isActive {

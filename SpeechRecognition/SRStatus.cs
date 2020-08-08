@@ -1,4 +1,5 @@
-﻿using bvba.cryingpants.SpeechRecognition.Inputs;
+﻿using bvba.cryingpants.SpeechRecognition.InputGrammar;
+using bvba.cryingpants.SpeechRecognition.Inputs;
 using System;
 using System.Collections.Generic;
 using System.Speech.Recognition;
@@ -9,8 +10,8 @@ namespace bvba.cryingpants.SpeechRecognition
     {
         private List<SRProfile> _profiles = new List<SRProfile>();
         private Dictionary<string, string> _variableValuesByName = new Dictionary<string, string>();
-        private Dictionary<string, SRInput> _activeInputsByInputString = new Dictionary<string, SRInput>();
-        private Dictionary<string, Grammar> _grammarByInputString = new Dictionary<string, Grammar>();
+        private Dictionary<SRInputGrammar, SRInput> _activeInputsByInputGrammar = new Dictionary<SRInputGrammar, SRInput>();
+        private Dictionary<SRInputGrammar, Grammar> _grammarByInputGrammar = new Dictionary<SRInputGrammar, Grammar>();
         private Dictionary<string, ICollection<SRInput>> _inputsByTag = new Dictionary<string, ICollection<SRInput>>();
         SpeechRecognitionEngine _sre;
 
@@ -39,13 +40,12 @@ namespace bvba.cryingpants.SpeechRecognition
                         _inputsByTag[tag] = inputs;
                     }
 
-                    foreach (var instring in i.GetAllInputStrings())
+                    foreach (var instring in i.GetAllInputGrammars())
                     {
-                        if (_activeInputsByInputString.ContainsKey(instring)) Console.WriteLine("warning: input string clash for " + instring);
-                        _activeInputsByInputString.Add(instring, i);
+                        _activeInputsByInputGrammar.Add(instring, i);
 
-                        Grammar g = new Grammar(new GrammarBuilder(instring));
-                        _grammarByInputString[instring] = g;
+                        Grammar g = instring.BuildSpeechGrammar();
+                        _grammarByInputGrammar[instring] = g;
                         _sre.LoadGrammar(g);
                     }
                 }
@@ -65,17 +65,17 @@ namespace bvba.cryingpants.SpeechRecognition
                 if (input.isActive != enabled) {
                     input.isActive = enabled;
 
-                    foreach (var inputstring in input.GetAllInputStrings())
+                    foreach (var igrammar in input.GetAllInputGrammars())
                     {
                         if (enabled)
                         {
-                            _activeInputsByInputString[inputstring] = input;
-                            _sre.LoadGrammar(_grammarByInputString[inputstring]);
+                            _activeInputsByInputGrammar[igrammar] = input;
+                            _sre.LoadGrammar(_grammarByInputGrammar[igrammar]);
                         }
                         else
                         {
-                            _activeInputsByInputString.Remove(inputstring);
-                            _sre.UnloadGrammar(_grammarByInputString[inputstring]);
+                            _activeInputsByInputGrammar.Remove(igrammar);
+                            _sre.UnloadGrammar(_grammarByInputGrammar[igrammar]);
                         }
                     }
                 }
@@ -90,9 +90,13 @@ namespace bvba.cryingpants.SpeechRecognition
 
         public void ProcessInput(string typed)
         {
-            if (_activeInputsByInputString.ContainsKey(typed))
+            foreach (var pair in _activeInputsByInputGrammar)
             {
-                _activeInputsByInputString[typed].ProcessInputString(this, typed);
+                if (pair.Key.Matches(typed))
+                {
+                    pair.Value.ProcessInputString(this, typed);
+                    return; //we can't continue iterating the inputs anyway, because certain actions might change the collection
+                }
             }
         }
 
