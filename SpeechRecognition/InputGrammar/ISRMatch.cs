@@ -4,7 +4,7 @@ namespace bvba.cryingpants.SpeechRecognition.InputGrammar
 {
     interface ISRMatch
     {
-        bool Matches(string tomatch);
+        bool Matches(string tomatch, ref int pos);
         GrammarBuilder ToSpeechGrammar();
     }
 }

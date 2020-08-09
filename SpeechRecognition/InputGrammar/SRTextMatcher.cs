@@ -8,12 +8,23 @@ namespace bvba.cryingpants.SpeechRecognition.InputGrammar
 
         public SRTextMatcher(string literal)
         {
-            _literal = literal.ToLower();
+            _literal = literal.ToLower().Trim();
         }
 
-        public bool Matches(string tomatch)
+        public bool Matches(string tomatch, ref int pos)
         {
-            return _literal.Equals(tomatch);
+            SRInputGrammar.SkipWhiteSpaceAndPunctuation(tomatch, ref pos);
+
+            //if by now, we're at the end of the string, this can't be a match...
+            //@TODO: ... unless one of the choices is empty? 
+            if (pos >= tomatch.Length) return false;
+
+            if (tomatch.IndexOf(_literal, pos) == pos)
+            {
+                pos += _literal.Length; //move the position up, so the next match starts after this one
+                return true;
+            }
+            return false;
         }
 
         public GrammarBuilder ToSpeechGrammar()

@@ -88,4 +88,12 @@
       <response>oh, we're being nice again?</response>
     </actionsequence>
   </input>
+  <input>
+    <id>testmatchsequence</id>
+    <inputstring>withoutsequence</inputstring>
+    <inputstring>with <choice>no|multiple,several;numerous</choice> choices</inputstring>
+    <actionsequence>
+      <response>did you use the complicated inputstring? If so, congratulations!!</response>
+    </actionsequence>
+  </input>
 </profile>
