@@ -9,7 +9,7 @@ namespace bvba.cryingpants.SpeechRecognition
     {
         public static void Main(string[] args)
         {
-            SRProfile profile = ParseXML("F:\\Projects\\VisualStudio\\SpeechRecognition\\TestConfiguration.xml");
+            SRProfile profile = ParseXML("..\\..\\..\\TestConfiguration.xml");
             Console.Write("profile ");
             Console.Write(profile.Name);
             Console.WriteLine(" read");

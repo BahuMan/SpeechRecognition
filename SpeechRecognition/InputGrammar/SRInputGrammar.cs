@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using System.Speech.Recognition;
 using System.Collections.Generic;
+using System.IO;
 
 namespace bvba.cryingpants.SpeechRecognition.InputGrammar
 {
@@ -26,6 +27,8 @@ namespace bvba.cryingpants.SpeechRecognition.InputGrammar
                     break;
                 else if (xr.NodeType == XmlNodeType.Text)
                     result.matchSequence.Add(new SRTextMatcher(xr.Value.ToLower()));
+                else if (xr.NodeType == XmlNodeType.Element && elname == "choice")
+                    result.matchSequence.Add(SRChoiceMatcher.ParseXML(xr));
                 else
                     throw new XmlException("unknown element inside InputString: " + xr.ToString());
             }
@@ -34,11 +37,20 @@ namespace bvba.cryingpants.SpeechRecognition.InputGrammar
 
         public bool Matches(string teststring)
         {
+            int pos = 0;
+
             foreach (var m in matchSequence)
             {
-                if (!m.Matches(teststring)) return false;
+                //when a match occurs, the position will have moved forward, and we check the next requirement in the sequence
+                if (!m.Matches(teststring, ref pos)) return false;
             }
             return true;
+        }
+
+        //utility method for all kinds of matchers to use:
+        public static void SkipWhiteSpaceAndPunctuation(string tomatch, ref int pos)
+        {
+            while (pos < tomatch.Length && " \t\r\n.;:".IndexOf(tomatch[pos]) >= 0) pos++;
         }
 
         public GrammarBuilder ToSpeechGrammar()
